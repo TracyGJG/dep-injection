@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dependency Regestry</title>
+  </head>
+  <body>
+    <script type="module">
+      import DEPS_REGISTRY, { SINGLETON } from './index.js';
+
+      const DepsRegistry = DEPS_REGISTRY();
+
+      {
+        class Greeter {
+          constructor() {
+            this.welcome = 'Hi';
+          }
+          greet(person) {
+            return `${this.welcome} ${person}`;
+          }
+        }
+
+        const instanceName = 'GreeterClass';
+        DepsRegistry.set(instanceName, Greeter, SINGLETON);
+
+        const gc1 = DepsRegistry.get(instanceName);
+        console.log(gc1.greet('World'));
+
+        const gc2 = DepsRegistry.get(instanceName);
+        console.log(gc2.greet('Again'), gc1 === gc2);
+
+        DepsRegistry.set('GreeterClassNonSingleton', Greeter);
+        const gc3 = DepsRegistry.get('GreeterClassNonSingleton');
+        console.log(gc3.greet('There'), gc2 === gc3);
+
+        const gc4 = DepsRegistry.get('GreeterClassNonSingleton');
+        console.log(gc4.greet('Finally'), gc3 === gc4);
+
+        DepsRegistry.clear('GreeterClassNonSingleton');
+        DepsRegistry.delete();
+
+        // DepsRegistry.clear('GreeterClassNonSingleton');
+        // DepsRegistry.get('GreeterClassNonSingleton');
+      }
+      console.log('\n');
+      {
+        function Greeter(welcome) {
+          return {
+            greet(person) {
+              return `${welcome} ${person}`;
+            },
+          };
+        }
+
+        const instanceName = 'GreeterFunction';
+        DepsRegistry.set(instanceName, Greeter, SINGLETON);
+
+        const gf1 = DepsRegistry.get(instanceName, 'Hello,');
+        console.log(gf1.greet('World'));
+
+        const gf2 = DepsRegistry.get(instanceName, 'Hi ya');
+        console.log(gf2.greet('Again'), gf1 === gf2);
+
+        DepsRegistry.set('GreeterFunctionNonSingleton', Greeter);
+        const gf3 = DepsRegistry.get('GreeterFunctionNonSingleton', 'Hi ya');
+        console.log(gf3.greet('There'), gf2 === gf3);
+
+        const gf4 = DepsRegistry.get('GreeterFunctionNonSingleton', 'Hiya');
+        console.log(gf4.greet('Finally'), gf3 === gf4);
+
+        DepsRegistry.clear('GreeterFunctionNonSingleton');
+        DepsRegistry.delete();
+
+        // DepsRegistry.clear('GreeterFunctionNonSingleton');
+        DepsRegistry.get('GreeterFunctionNonSingleton');
+      }
+    </script>
+  </body>
+</html>
