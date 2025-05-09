@@ -18,7 +18,7 @@ describe('DEPS REGISTRY', () => {
     });
 
     afterEach(() => {
-      depsRegistry.delete();
+      depsRegistry.clear();
     });
 
     it('can be instantiated', () => {
@@ -27,7 +27,7 @@ describe('DEPS REGISTRY', () => {
 
     it('throws an exception when there is nothing to clear', () => {
       try {
-        depsRegistry.clear('exception');
+        depsRegistry.remove('exception');
       } catch (error) {
         assert.strictEqual(error instanceof ReferenceError, true);
         assert.strictEqual(
@@ -60,17 +60,17 @@ describe('DEPS REGISTRY', () => {
       }
 
       it('can be registered, retreived and cleared (singleton)', () => {
-        depsRegistry.set('instanceName', Greeter, SINGLETON);
+        depsRegistry.add('instanceName', Greeter, SINGLETON);
         const instance1 = depsRegistry.get('instanceName');
         const instance2 = depsRegistry.get('instanceName');
         assert.strictEqual(instance1, instance2);
       });
 
       it('can be registered, retreived and cleared', () => {
-        depsRegistry.set('instanceName', Greeter);
+        depsRegistry.add('instanceName', Greeter);
         const instance1 = depsRegistry.get('instanceName');
         assert.notStrictEqual(instance1, null);
-        depsRegistry.clear('instanceName');
+        depsRegistry.remove('instanceName');
       });
     });
 
@@ -84,18 +84,18 @@ describe('DEPS REGISTRY', () => {
       }
 
       it('can be registered, retreived and cleared (singleton)', () => {
-        depsRegistry.set('instanceName', Greeter, SINGLETON);
+        depsRegistry.add('instanceName', Greeter, SINGLETON);
         const instance1 = depsRegistry.get('instanceName');
         const instance2 = depsRegistry.get('instanceName');
         assert.strictEqual(instance1, instance2);
       });
 
       it('can be registered, retreived and cleared', () => {
-        depsRegistry.set('instanceName', Greeter);
+        depsRegistry.add('instanceName', Greeter);
         const instance1 = depsRegistry.get('instanceName');
 
         assert.notStrictEqual(instance1, null);
-        depsRegistry.clear('instanceName');
+        depsRegistry.remove('instanceName');
       });
     });
   });

@@ -1,9 +1,11 @@
+export const SINGLETON = true;
+
 export default function DependencyRegistry() {
   const DEPS = new Map();
   const INSTS = new Map();
 
   return {
-    set(ref, instantiator, isSingleton = false) {
+    add(ref, instantiator, isSingleton = !SINGLETON) {
       const _instance = new instantiator();
       DEPS.set(ref, {
         isSingleton,
@@ -26,17 +28,15 @@ export default function DependencyRegistry() {
       }
       return INSTS.get(_instRef);
     },
-    clear(instRef) {
+    remove(instRef) {
       if (!INSTS.has(instRef)) {
         throw ReferenceError(`No instantiator registered as ${instRef}`);
       }
       INSTS.delete(instRef);
     },
-    delete() {
+    clear() {
       DEPS.clear();
       INSTS.clear();
     },
   };
 }
-
-export const SINGLETON = true;
