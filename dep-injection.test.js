@@ -1,7 +1,7 @@
-import { describe, it, mock, beforeEach, afterEach } from 'node:test';
+import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
 
-import DEPS_REGISTRY, { SINGLETON } from './index.js';
+import DEPS_REGISTRY, { SINGLETON } from './dep-injection.js';
 
 describe('DEPS REGISTRY', () => {
   describe('SINGLETON', () => {

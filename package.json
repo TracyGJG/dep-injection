@@ -1,7 +1,8 @@
 {
   "name": "dep-injection",
   "version": "0.0.1",
-  "main": "index.js",
+  "description": "A Dependency Injection mechanism",
+  "main": "dep-injection.js",
   "type": "module",
   "scripts": {
     "test": "node --test",
@@ -9,10 +10,11 @@
     "coverage": "c8 node --test",
     "coverage:ui": "http-server ./coverage/"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "Dependency Injection"
+  ],
+  "author": "TGJ Gilmore",
+  "license": "CC0-1.0",
   "devDependencies": {
     "c8": "^10.1.3",
     "http-server": "^14.1.1"
