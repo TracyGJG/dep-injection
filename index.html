@@ -7,70 +7,86 @@
   </head>
   <body>
     <script type="module">
-      import DEPS_REGISTRY, { SINGLETON } from './dep-injection.js';
+      import DEPS_REGISTRY, { getInternalStores } from './dep-injection.js';
 
-      const DepsRegistry = DEPS_REGISTRY();
+      class clsNoArgs {
+        getProp() {
+          return `singleNoArgs`;
+        }
+      }
 
-      {
-        class Greeter {
-          constructor() {
-            this.welcome = 'Hi';
-          }
-          greet(person) {
-            return `${this.welcome} ${person}`;
-          }
+      class clsWithArgs {
+        #arg = '';
+        constructor(arg) {
+          this.#arg = arg;
         }
 
-        const instanceName = 'GreeterClass';
-        DepsRegistry.add(instanceName, Greeter, SINGLETON);
-
-        const gc1 = DepsRegistry.get(instanceName);
-        console.log(gc1.greet('World'));
-
-        const gc2 = DepsRegistry.get(instanceName);
-        console.log(gc2.greet('Again'), gc1 === gc2);
-
-        DepsRegistry.add('GreeterClassNonSingleton', Greeter);
-        const gc3 = DepsRegistry.get('GreeterClassNonSingleton');
-        console.log(gc3.greet('There'), gc2 === gc3);
-
-        const gc4 = DepsRegistry.get('GreeterClassNonSingleton');
-        console.log(gc4.greet('Finally'), gc3 === gc4);
-
-        DepsRegistry.remove('GreeterClassNonSingleton');
-        DepsRegistry.clear();
-      }
-      console.log('\n');
-      {
-        function Greeter(welcome) {
-          return {
-            greet(person) {
-              return `${welcome} ${person}`;
-            },
-          };
+        getProp() {
+          return `singleWithArgs: ${this.#arg}`;
         }
-
-        const instanceName = 'GreeterFunction';
-        DepsRegistry.add(instanceName, Greeter, SINGLETON);
-
-        const gf1 = DepsRegistry.get(instanceName, 'Hello,');
-        console.log(gf1.greet('World'));
-
-        const gf2 = DepsRegistry.get(instanceName, 'Hi ya');
-        console.log(gf2.greet('Again'), gf1 === gf2);
-
-        DepsRegistry.add('GreeterFunctionNonSingleton', Greeter);
-        const gf3 = DepsRegistry.get('GreeterFunctionNonSingleton', 'Hi ya');
-        console.log(gf3.greet('There'), gf2 === gf3);
-
-        const gf4 = DepsRegistry.get('GreeterFunctionNonSingleton', 'Hiya');
-        console.log(gf4.greet('Finally'), gf3 === gf4);
-
-        DepsRegistry.remove('GreeterFunctionNonSingleton');
-        DepsRegistry.clear();
-
-        DepsRegistry.get('GreeterFunctionNonSingleton');
       }
+
+      function fnNoArgs() {
+        return {
+          getProp() {
+            return `fnNoArgs`;
+          },
+        };
+      }
+
+      function fnWithArgs(arg) {
+        return {
+          getProp() {
+            return `fnWithArgs: ${arg}`;
+          },
+        };
+      }
+
+      const DepsRegistry = DEPS_REGISTRY(
+        [clsNoArgs],
+        [clsWithArgs, ['test']],
+        [fnNoArgs],
+        [fnWithArgs, ['test']]
+      );
+
+      const { DEPS, INSTS } = getInternalStores();
+
+      console.log(DEPS);
+      console.log(INSTS);
+
+      {
+        const testInst = DepsRegistry.create(clsNoArgs, 'ref1');
+        console.log(`clsNoArgs: ${testInst.getProp()}`);
+      }
+
+      {
+        const testInst = DepsRegistry.create(clsWithArgs);
+        console.log(`clsWithArgs: ${testInst.getProp()}`);
+      }
+
+      {
+        const testInst = DepsRegistry.create(fnNoArgs, 'ref2');
+        console.log(`fnNoArgs: ${testInst.getProp()}`);
+      }
+
+      {
+        const testInst = DepsRegistry.create(fnWithArgs);
+        console.log(`fnWithArgs: ${testInst.getProp()}`);
+      }
+
+      console.log(DEPS);
+      console.log(INSTS);
+
+      DepsRegistry.remove('ref1');
+      DepsRegistry.remove('ref2');
+
+      console.log(DEPS);
+      console.log(INSTS);
+
+      DepsRegistry.deregister();
+
+      console.log(DEPS);
+      console.log(INSTS);
     </script>
   </body>
 </html>

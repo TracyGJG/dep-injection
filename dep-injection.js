@@ -1,42 +1,74 @@
-export const SINGLETON = true;
+const isClass = (_) => `${_}`.split(/\s/)[0] === 'class';
+const getName = (_) => _.name;
 
-export default function DependencyRegistry() {
-  const DEPS = new Map();
-  const INSTS = new Map();
+const DEPS = new Map();
+const INSTS = new Map();
+
+export default function DependencyRegistry(...registrations) {
+  registrations.forEach((registration) => register(...registration));
 
   return {
-    add(ref, instantiator, isSingleton = !SINGLETON) {
-      const _instance = new instantiator();
-      DEPS.set(ref, {
-        isSingleton,
-        createInstance(...args) {
-          return _instance instanceof instantiator
-            ? new instantiator(...args)
-            : instantiator(...args);
-        },
-      });
-    },
-    get(ref, ...args) {
-      if (!DEPS.has(ref)) {
-        throw ReferenceError(`No instantiator registered for ${ref}`);
-      }
-      const { isSingleton, createInstance } = DEPS.get(ref);
-      const _instRef = isSingleton ? `${ref}_SINGLETON` : ref;
+    register,
+    create,
+    remove,
+    deregister,
+  };
 
-      if (!INSTS.has(_instRef)) {
-        INSTS.set(_instRef, createInstance(...args));
+  function register(instantiator, instArgs) {
+    const ref = getName(instantiator);
+
+    if (DEPS.has(ref)) {
+      throw ReferenceError(
+        `An instantiator has already been registered for ${ref}`
+      );
+    }
+    DEPS.set(
+      ref,
+      isClass(instantiator) ? (args) => new instantiator(args) : instantiator
+    );
+    if (instArgs) {
+      INSTS.set(ref, DEPS.get(ref)(...instArgs));
+    }
+  }
+
+  function create(instantiator, instRef, ...instArgs) {
+    const ref = getName(instantiator);
+
+    if (!DEPS.has(ref)) {
+      throw ReferenceError(`No instantiator registered for ${ref}`);
+    }
+
+    if (instRef) {
+      if (INSTS.has(instRef)) {
+        if (!instArgs) return INSTS.get(instRef);
+        throw ReferenceError(`No instantiance found for singleton ${ref}`);
       }
-      return INSTS.get(_instRef);
-    },
-    remove(instRef) {
-      if (!INSTS.has(instRef)) {
-        throw ReferenceError(`No instantiator registered as ${instRef}`);
+      INSTS.set(instRef, DEPS.get(ref)(...instArgs));
+      return INSTS.get(instRef);
+    } else {
+      if (INSTS.has(ref)) {
+        return INSTS.get(ref);
       }
-      INSTS.delete(instRef);
-    },
-    clear() {
-      DEPS.clear();
-      INSTS.clear();
-    },
+      throw ReferenceError(`No instantiance found for singleton ${ref}`);
+    }
+  }
+
+  function remove(instRef) {
+    if (!INSTS.has(instRef)) {
+      throw ReferenceError(`No instantiator registered as ${instRef}`);
+    }
+    INSTS.delete(instRef);
+  }
+
+  function deregister() {
+    DEPS.clear();
+    INSTS.clear();
+  }
+}
+
+export function getInternalStores() {
+  return {
+    DEPS,
+    INSTS,
   };
 }

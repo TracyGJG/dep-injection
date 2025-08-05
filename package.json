@@ -8,7 +8,7 @@
     "test": "node --test",
     "watch": "node --test --watch",
     "coverage": "c8 node --test",
-    "coverage:ui": "http-server ./coverage/"
+    "coverage:ui": "http-server ./coverage -o lcov-report/"
   },
   "keywords": [
     "Dependency Injection"
@@ -18,5 +18,13 @@
   "devDependencies": {
     "c8": "^10.1.3",
     "http-server": "^14.1.1"
+  },
+  "c8": {
+    "exclude": [
+      "**/*.test.*"
+    ],
+    "reporter": [
+      "lcov"
+    ]
   }
 }
